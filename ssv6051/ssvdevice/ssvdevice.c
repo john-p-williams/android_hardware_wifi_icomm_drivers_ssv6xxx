@@ -37,7 +37,7 @@ MODULE_AUTHOR("iComm Semiconductor Co., Ltd");
 MODULE_DESCRIPTION("Shared library for SSV wireless LAN cards.");
 MODULE_LICENSE("Dual BSD/GPL");
 static char *stacfgpath = "/lib/firmware/ssv6051/ssv6051-wifi.cfg";
-EXPORT_SYMBOL(stacfgpath);
+//EXPORT_SYMBOL(stacfgpath);
 module_param(stacfgpath, charp, 0000);
 MODULE_PARM_DESC(stacfgpath, "Get path of sta cfg");
 char *cfgfirmwarepath = NULL;

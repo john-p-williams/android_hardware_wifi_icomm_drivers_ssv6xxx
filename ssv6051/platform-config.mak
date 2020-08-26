@@ -69,12 +69,12 @@ ccflags-y += -DUSE_GENERIC_DECI_TBL
 
 # Use crypto in SSV driver.
 ccflags-y += -DUSE_LOCAL_CRYPTO
-ccflags-y += -DUSE_LOCAL_WEP_CRYPTO
+#ccflags-y += -DUSE_LOCAL_WEP_CRYPTO
 #ccflags-y += -DUSE_LOCAL_TKIP_CRYPTO
-ccflags-y += -DUSE_LOCAL_CCMP_CRYPTO
-ccflags-y += -DUSE_LOCAL_SMS4_CRYPTO
+#ccflags-y += -DUSE_LOCAL_CCMP_CRYPTO
+#ccflags-y += -DUSE_LOCAL_SMS4_CRYPTO
 
-ccflags-y += -DCONFIG_SSV_WAPI
+#ccflags-y += -DCONFIG_SSV_WAPI
 
 ccflags-y += -DFW_WSID_WATCH_LIST
 #ccflags-y += -DUSE_BATCH_RX

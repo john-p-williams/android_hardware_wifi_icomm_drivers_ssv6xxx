@@ -122,8 +122,8 @@ static __exit void generic_wifi_exit_module(void)
     msleep(100);
 	exitWlan();
 }
-EXPORT_SYMBOL(generic_wifi_init_module);
-EXPORT_SYMBOL(generic_wifi_exit_module);
+//EXPORT_SYMBOL(generic_wifi_init_module);
+//EXPORT_SYMBOL(generic_wifi_exit_module);
 module_init(generic_wifi_init_module);
 module_exit(generic_wifi_exit_module);
 MODULE_LICENSE("Dual BSD/GPL");

@@ -389,7 +389,7 @@ static int ssv_cmd_dump(int argc, char *argv[])
     int s;
  if(!ssv6xxx_result_buf)
  {
-  strcpy(ssv6xxx_result_buf, "ssv6xxx_result_buf = NULL!!\n");
+//  strcpy(ssv6xxx_result_buf, "ssv6xxx_result_buf = NULL!!\n");
   return -1;
  }
     if (argc != 2)
@@ -1533,7 +1533,7 @@ static int ssv_cmd_txtput(int argc, char *argv[])
  size_per_frame = simple_strtoul(argv[2], &endp, 10);
  loop_times = simple_strtoul(argv[3], &endp, 10);
  sprintf(tmpbf, "type&size&frames:%d&%d&%d\n", pkt_type, size_per_frame, loop_times);
- strncat(ssv6xxx_result_buf, tmpbf, sizeof(tmpbf));
+ strncat(ssv6xxx_result_buf, tmpbf, sizeof(ssv6xxx_result_buf)-(strlen(ssv6xxx_result_buf)+1));
  if (ssv6xxx_txtput->txtput_tsk) {
   sprintf(tmpbf, "txtput already in progress\n");
   strcat(ssv6xxx_result_buf, tmpbf);

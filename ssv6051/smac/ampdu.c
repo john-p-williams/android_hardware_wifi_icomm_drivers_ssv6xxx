@@ -823,10 +823,12 @@ void ssv6200_ampdu_tx_operation (u16 tid, struct ieee80211_sta *sta,
     ssv_sta_priv->ampdu_tid[tid].sta = sta;
     ssv_sta_priv->ampdu_tid[tid].agg_num_max = MAX_AGGR_NUM;
 #if 1
+#if IEEE80211_MAX_AMPDU_BUF < 0x100
     if (buffer_size > IEEE80211_MAX_AMPDU_BUF)
     {
         buffer_size = IEEE80211_MAX_AMPDU_BUF;
     }
+#endif
     printk("ssv6200_ampdu_tx_operation:buffer_size=%d\n", buffer_size);
     ssv_sta_priv->ampdu_tid[tid].ssv_baw_size = SSV_AMPDU_WINDOW_SIZE;
 #else
