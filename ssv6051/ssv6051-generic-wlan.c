@@ -52,6 +52,7 @@ extern void sha1_mod_fini(void);
 
 void ssv_wifi_power(void)
 {
+#ifdef UNDEFINED
 	rockchip_wifi_set_carddetect(0);
 	msleep(150);
 	rockchip_wifi_power(0);
@@ -60,6 +61,7 @@ void ssv_wifi_power(void)
 	msleep(150);
 	rockchip_wifi_set_carddetect(1);
 	msleep(150);
+#endif
 }
 
 int initWlan(void)
@@ -91,10 +93,12 @@ void exitWlan(void)
     {
         ssvdevice_exit();
         msleep(50);
+#ifdef UNDEFINED
 #ifndef ROCKCHIP_WIFI_AUTO_SUPPORT
         rockchip_wifi_set_carddetect(0);
 #endif
         rockchip_wifi_power(0);
+#endif
         g_wifidev_registered = 0;
     }
     return;

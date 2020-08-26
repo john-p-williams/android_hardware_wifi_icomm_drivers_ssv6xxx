@@ -1080,6 +1080,7 @@ static void ssv6xxx_get_rate(void *priv, struct ieee80211_sta *sta, void *priv_s
         tx_info->flags |= IEEE80211_TX_CTL_NO_CCK_RATE;
     }
     #endif
+#ifdef UNDEFINED
     if (rate_control_send_low(sta, priv_sta, txrc))
     {
         int i = 0;
@@ -1116,6 +1117,7 @@ static void ssv6xxx_get_rate(void *priv, struct ieee80211_sta *sta, void *priv_s
             WARN_ON("Failed to find matching low rate.");
         }
     }
+#endif
     if (rc_rate == NULL) {
         if (conf_is_ht(&sc->hw->conf) &&
                 (sta->ht_cap.cap & IEEE80211_HT_CAP_LDPC_CODING))
@@ -1455,7 +1457,7 @@ static void ssv6xxx_rate_free_sta(void *priv, struct ieee80211_sta *sta,
     struct ssv_sta_rc_info *rc_sta=priv_sta;
     rc_sta->rc_valid = false;
 }
-static void *ssv6xxx_rate_alloc(struct ieee80211_hw *hw, struct dentry *debugfsdir)
+static void *ssv6xxx_rate_alloc(struct ieee80211_hw *hw)
 {
     struct ssv_softc *sc=hw->priv;
     struct ssv_rate_ctrl *ssv_rc;
@@ -1510,13 +1512,13 @@ void ssv6xxx_rc_mac8011_rate_idx(struct ssv_softc *sc,
         hw_rate_idx < 0);
     rc_rate = &ssv_rc->rc_table[hw_rate_idx];
     if (rc_rate->rc_flags & RC_FLAG_HT) {
-        rxs->flag |= RX_FLAG_HT;
+        rxs->encoding = RX_ENC_HT;
         if (rc_rate->rc_flags & RC_FLAG_HT_SGI)
-            rxs->flag |= RX_FLAG_SHORT_GI;
+            rxs->flag |= RX_ENC_FLAG_SHORT_GI;
     }
     else {
         if (rc_rate->rc_flags & RC_FLAG_SHORT_PREAMBLE)
-            rxs->flag |= RX_FLAG_SHORTPRE;
+            rxs->flag |= RX_ENC_FLAG_SHORTPRE;
     }
     rxs->rate_idx = rc_rate->dot11_rate_idx;
 }

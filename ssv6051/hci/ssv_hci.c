@@ -438,8 +438,8 @@ static int _do_rx (struct ssv6xxx_hci_ctrl *hctl, u32 isr_status)
     size_t dlen;
     u32 status = isr_status;
     #ifdef CONFIG_SSV6XXX_DEBUGFS
-    struct timespec rx_io_start_time, rx_io_end_time, rx_io_diff_time;
-    struct timespec rx_proc_start_time, rx_proc_end_time, rx_proc_diff_time;
+    struct timespec64 rx_io_start_time, rx_io_end_time, rx_io_diff_time;
+    struct timespec64 rx_proc_start_time, rx_proc_end_time, rx_proc_diff_time;
     #endif
     #if !defined(USE_THREAD_RX) || defined(USE_BATCH_RX)
     skb_queue_head_init(&rx_list);
@@ -448,12 +448,12 @@ static int _do_rx (struct ssv6xxx_hci_ctrl *hctl, u32 isr_status)
     {
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (hctl->isr_mib_enable)
-            getnstimeofday(&rx_io_start_time);
+            ktime_get_real_ts64(&rx_io_start_time);
         #endif
         ret = IF_RECV(hctl, hctl->rx_buf->data, &dlen);
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (hctl->isr_mib_enable)
-            getnstimeofday(&rx_io_end_time);
+            ktime_get_real_ts64(&rx_io_end_time);
         #endif
         if (ret < 0 || dlen<=0)
         {
@@ -478,7 +478,7 @@ static int _do_rx (struct ssv6xxx_hci_ctrl *hctl, u32 isr_status)
         skb_put(rx_mpdu, dlen);
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (hctl->isr_mib_enable)
-            getnstimeofday(&rx_proc_start_time);
+            ktime_get_real_ts64(&rx_proc_start_time);
         #endif
         #if !defined(USE_THREAD_RX) || defined(USE_BATCH_RX)
         __skb_queue_tail(&rx_list, rx_mpdu);
@@ -489,27 +489,27 @@ static int _do_rx (struct ssv6xxx_hci_ctrl *hctl, u32 isr_status)
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (hctl->isr_mib_enable)
         {
-            getnstimeofday(&rx_proc_end_time);
+            ktime_get_real_ts64(&rx_proc_end_time);
             hctl->isr_rx_io_count++;
-            rx_io_diff_time = timespec_sub(rx_io_end_time, rx_io_start_time);
-            hctl->isr_rx_io_time += timespec_to_ns(&rx_io_diff_time);
-            rx_proc_diff_time = timespec_sub(rx_proc_end_time, rx_proc_start_time);
-            hctl->isr_rx_proc_time += timespec_to_ns(&rx_proc_diff_time);
+            rx_io_diff_time = timespec64_sub(rx_io_end_time, rx_io_start_time);
+            hctl->isr_rx_io_time += timespec64_to_ns(&rx_io_diff_time);
+            rx_proc_diff_time = timespec64_sub(rx_proc_end_time, rx_proc_start_time);
+            hctl->isr_rx_proc_time += timespec64_to_ns(&rx_proc_diff_time);
         }
         #endif
     }
     #if !defined(USE_THREAD_RX) || defined(USE_BATCH_RX)
     #ifdef CONFIG_SSV6XXX_DEBUGFS
     if (hctl->isr_mib_enable)
-        getnstimeofday(&rx_proc_start_time);
+        ktime_get_real_ts64(&rx_proc_start_time);
     #endif
     hctl->shi->hci_rx_cb(&rx_list, hctl->shi->rx_cb_args);
     #ifdef CONFIG_SSV6XXX_DEBUGFS
     if (hctl->isr_mib_enable)
     {
-        getnstimeofday(&rx_proc_end_time);
-        rx_proc_diff_time = timespec_sub(rx_proc_end_time, rx_proc_start_time);
-        hctl->isr_rx_proc_time += timespec_to_ns(&rx_proc_diff_time);
+        ktime_get_real_ts64(&rx_proc_end_time);
+        rx_proc_diff_time = timespec64_sub(rx_proc_end_time, rx_proc_start_time);
+        hctl->isr_rx_proc_time += timespec64_to_ns(&rx_proc_diff_time);
     }
     #endif
     #endif
@@ -525,8 +525,8 @@ static void ssv6xxx_hci_rx_work(struct work_struct *work)
     size_t dlen;
     u32 status;
 #ifdef CONFIG_SSV6XXX_DEBUGFS
-    struct timespec rx_io_start_time, rx_io_end_time, rx_io_diff_time;
-    struct timespec rx_proc_start_time, rx_proc_end_time, rx_proc_diff_time;
+    struct timespec64 rx_io_start_time, rx_io_end_time, rx_io_diff_time;
+    struct timespec64 rx_proc_start_time, rx_proc_end_time, rx_proc_diff_time;
 #endif
     ctrl_hci->rx_work_running = 1;
     #if !defined(USE_THREAD_RX) || defined(USE_BATCH_RX)
@@ -536,12 +536,12 @@ static void ssv6xxx_hci_rx_work(struct work_struct *work)
     for (rx_cnt = 0; (status & SSV6XXX_INT_RX) && (rx_cnt < 32 ); rx_cnt++) {
 #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (ctrl_hci->isr_mib_enable)
-            getnstimeofday(&rx_io_start_time);
+            ktime_get_real_ts64(&rx_io_start_time);
 #endif
         ret = IF_RECV(ctrl_hci, ctrl_hci->rx_buf->data, &dlen);
 #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (ctrl_hci->isr_mib_enable)
-            getnstimeofday(&rx_io_end_time);
+            ktime_get_real_ts64(&rx_io_end_time);
 #endif
         if (ret < 0 || dlen<=0) {
             printk("%s(): IF_RECV() retruns %d (dlen=%d)\n", __FUNCTION__,
@@ -564,7 +564,7 @@ static void ssv6xxx_hci_rx_work(struct work_struct *work)
         skb_put(rx_mpdu, dlen);
 #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (ctrl_hci->isr_mib_enable)
-            getnstimeofday(&rx_proc_start_time);
+            ktime_get_real_ts64(&rx_proc_start_time);
 #endif
         #if !defined(USE_THREAD_RX) || defined(USE_BATCH_RX)
         __skb_queue_tail(&rx_list, rx_mpdu);
@@ -575,27 +575,27 @@ static void ssv6xxx_hci_rx_work(struct work_struct *work)
 #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (ctrl_hci->isr_mib_enable)
         {
-            getnstimeofday(&rx_proc_end_time);
+            ktime_get_real_ts64(&rx_proc_end_time);
             ctrl_hci->isr_rx_io_count++;
-            rx_io_diff_time = timespec_sub(rx_io_end_time, rx_io_start_time);
-            ctrl_hci->isr_rx_io_time += timespec_to_ns(&rx_io_diff_time);
-            rx_proc_diff_time = timespec_sub(rx_proc_end_time, rx_proc_start_time);
-            ctrl_hci->isr_rx_proc_time += timespec_to_ns(&rx_proc_diff_time);
+            rx_io_diff_time = timespec64_sub(rx_io_end_time, rx_io_start_time);
+            ctrl_hci->isr_rx_io_time += timespec64_to_ns(&rx_io_diff_time);
+            rx_proc_diff_time = timespec64_sub(rx_proc_end_time, rx_proc_start_time);
+            ctrl_hci->isr_rx_proc_time += timespec64_to_ns(&rx_proc_diff_time);
         }
 #endif
     }
     #if !defined(USE_THREAD_RX) || defined(USE_BATCH_RX)
     #ifdef CONFIG_SSV6XXX_DEBUGFS
     if (ctrl_hci->isr_mib_enable)
-        getnstimeofday(&rx_proc_start_time);
+        ktime_get_real_ts64(&rx_proc_start_time);
     #endif
     ctrl_hci->shi->hci_rx_cb(&rx_list, ctrl_hci->shi->rx_cb_args);
     #ifdef CONFIG_SSV6XXX_DEBUGFS
     if (ctrl_hci->isr_mib_enable)
     {
-        getnstimeofday(&rx_proc_end_time);
-        rx_proc_diff_time = timespec_sub(rx_proc_end_time, rx_proc_start_time);
-        ctrl_hci->isr_rx_proc_time += timespec_to_ns(&rx_proc_diff_time);
+        ktime_get_real_ts64(&rx_proc_end_time);
+        rx_proc_diff_time = timespec64_sub(rx_proc_end_time, rx_proc_start_time);
+        ctrl_hci->isr_rx_proc_time += timespec64_to_ns(&rx_proc_diff_time);
     }
     #endif
     #endif
@@ -718,7 +718,7 @@ static int _do_tx (struct ssv6xxx_hci_ctrl *hctl, u32 status)
     unsigned long flags;
     struct ssv_hw_txq *hw_txq;
     #ifdef CONFIG_SSV6XXX_DEBUGFS
-    struct timespec tx_io_start_time, tx_io_end_time, tx_io_diff_time;
+    struct timespec64 tx_io_start_time, tx_io_end_time, tx_io_diff_time;
     #endif
     #ifdef CONFIG_IRQ_DEBUG_COUNT
     if ((!(status & SSV6XXX_INT_RX)) && htcl->irq_enable)
@@ -732,15 +732,15 @@ static int _do_tx (struct ssv6xxx_hci_ctrl *hctl, u32 status)
         hw_txq = &hctl->hw_txq[q_num];
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (hctl->isr_mib_enable)
-            getnstimeofday(&tx_io_start_time);
+            ktime_get_real_ts64(&tx_io_start_time);
         #endif
         tx_count += ssv6xxx_hci_tx_handler(hw_txq, 999);
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (hctl->isr_mib_enable)
         {
-            getnstimeofday(&tx_io_end_time);
-            tx_io_diff_time = timespec_sub(tx_io_end_time, tx_io_start_time);
-            hctl->isr_tx_io_time += timespec_to_ns(&tx_io_diff_time);
+            ktime_get_real_ts64(&tx_io_end_time);
+            tx_io_diff_time = timespec64_sub(tx_io_end_time, tx_io_start_time);
+            hctl->isr_tx_io_time += timespec64_to_ns(&tx_io_diff_time);
         }
         #endif
         if (hctl->isr_summary_eable)
@@ -792,7 +792,7 @@ static int _do_tx (struct ssv6xxx_hci_ctrl *hctl, u32 status)
     int q_num;
     int tx_count = 0;
     #ifdef CONFIG_SSV6XXX_DEBUGFS
-    struct timespec tx_io_start_time, tx_io_end_time, tx_io_diff_time;
+    struct timespec64 tx_io_start_time, tx_io_end_time, tx_io_diff_time;
     #endif
     #ifdef CONFIG_IRQ_DEBUG_COUNT
     if ((!(status & SSV6XXX_INT_RX)) && htcl->irq_enable)
@@ -811,7 +811,7 @@ static int _do_tx (struct ssv6xxx_hci_ctrl *hctl, u32 status)
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (htcl->isr_mib_enable)
         {
-            getnstimeofday(&tx_io_start_time);
+            ktime_get_real_ts64(&tx_io_start_time);
         }
         #endif
         tx_count += ssv6xxx_hci_tx_handler(hw_txq, 999);
@@ -833,9 +833,9 @@ static int _do_tx (struct ssv6xxx_hci_ctrl *hctl, u32 status)
         #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (htcl->isr_mib_enable)
         {
-            getnstimeofday(&tx_io_end_time);
-            tx_io_diff_time = timespec_sub(tx_io_end_time, tx_io_start_time);
-            htcl->isr_tx_io_time += timespec_to_ns(&tx_io_diff_time);
+            ktime_get_real_ts64(&tx_io_end_time);
+            tx_io_diff_time = timespec64_sub(tx_io_end_time, tx_io_start_time);
+            htcl->isr_tx_io_time += timespec64_to_ns(&tx_io_diff_time);
         }
         #endif
         if (htcl->isr_summary_eable)
@@ -862,7 +862,7 @@ irqreturn_t ssv6xxx_hci_isr(int irq, void *args)
  int ret = IRQ_HANDLED;
  bool dbg_isr_miss = true;
 #ifdef CONFIG_SSV6XXX_DEBUGFS
-  struct timespec start_time, end_time, diff_time;
+  struct timespec64 start_time, end_time, diff_time;
 #endif
  ctrl_hci->isr_running = 1;
  if (ctrl_hci->isr_summary_eable && ctrl_hci->prev_isr_jiffes) {
@@ -880,7 +880,7 @@ irqreturn_t ssv6xxx_hci_isr(int irq, void *args)
   if (hctl->isr_mib_reset)
    ssv6xxx_isr_mib_reset();
   if (hctl->isr_mib_enable)
-   getnstimeofday(&start_time);
+   ktime_get_real_ts64(&start_time);
 #endif
 #ifdef CONFIG_IRQ_DEBUG_COUNT
   if (ctrl_hci->irq_enable)
@@ -910,9 +910,9 @@ irqreturn_t ssv6xxx_hci_isr(int irq, void *args)
     }
 #ifdef CONFIG_SSV6XXX_DEBUGFS
   if (ctrl_hci->isr_mib_enable) {
-   getnstimeofday(&end_time);
-   diff_time = timespec_sub(end_time, start_time);
-   ctrl_hci->isr_total_time += timespec_to_ns(&diff_time);
+   ktime_get_real_ts64(&end_time);
+   diff_time = timespec64_sub(end_time, start_time);
+   ctrl_hci->isr_total_time += timespec64_to_ns(&diff_time);
   }
 #endif
  if (ctrl_hci->isr_summary_eable) {
@@ -945,11 +945,11 @@ irqreturn_t ssv6xxx_hci_isr(int irq, void *args)
     BUG_ON(!args);
     do {
 #ifdef CONFIG_SSV6XXX_DEBUGFS
-        struct timespec start_time, end_time, diff_time;
+        struct timespec64 start_time, end_time, diff_time;
         if (hctl->isr_mib_reset)
             ssv6xxx_isr_mib_reset();
         if (hctl->isr_mib_enable)
-            getnstimeofday(&start_time);
+            ktime_get_real_ts64(&start_time);
 #endif
 #ifdef CONFIG_IRQ_DEBUG_COUNT
   if(ctrl_hci->irq_enable)
@@ -998,9 +998,9 @@ irqreturn_t ssv6xxx_hci_isr(int irq, void *args)
 #ifdef CONFIG_SSV6XXX_DEBUGFS
         if (ctrl_hci->isr_mib_enable)
         {
-            getnstimeofday(&end_time);
-            diff_time = timespec_sub(end_time, start_time);
-            ctrl_hci->isr_total_time += timespec_to_ns(&diff_time);
+            ktime_get_real_ts64(&end_time);
+            diff_time = timespec64_sub(end_time, start_time);
+            ctrl_hci->isr_total_time += timespec64_to_ns(&diff_time);
         }
 #endif
     } while (1);
@@ -1115,7 +1115,9 @@ static int __init ssv6xxx_hci_init(void)
     extern struct ssv6xxx_hci_ctrl *ssv_dbg_ctrl_hci;
 #endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0))
+#ifdef UNDEFINED
     sdio_clk_always_on(1);
+#endif
 #endif
     ctrl_hci = kzalloc(sizeof(*ctrl_hci), GFP_KERNEL);
     if (ctrl_hci == NULL)
@@ -1146,7 +1148,9 @@ static void __exit ssv6xxx_hci_exit(void)
     ssv_dbg_ctrl_hci = NULL;
 #endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0))
+#ifdef UNDEFINED
     sdio_clk_always_on(0);
+#endif
 #endif
 }
 #if (defined(CONFIG_SSV_SUPPORT_ANDROID)||defined(CONFIG_SSV_BUILD_AS_ONE_KO))

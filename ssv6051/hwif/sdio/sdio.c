@@ -343,10 +343,11 @@ void * ssv6xxx_open_firmware(char *user_mainfw)
 int ssv6xxx_read_fw_block(char *buf, int len, void *image)
 {
  struct file *fp = (struct file *)image;
+ loff_t pos = fp->f_pos;
  int rdlen;
  if (!image)
   return 0;
- rdlen = kernel_read(fp, fp->f_pos, buf, len);
+ rdlen = kernel_read(fp, buf, len, &pos);
  if (rdlen > 0)
   fp->f_pos += rdlen;
  return rdlen;
@@ -1182,7 +1183,7 @@ static struct ssv6xxx_hwif_ops sdio_ops =
 };
 #ifdef CONFIG_PCIEASPM
 #include <linux/pci.h>
-#include <linux/pci-aspm.h>
+//#include <linux/pci-aspm.h>
 static int cabrio_sdio_pm_check(struct sdio_func *func)
 {
  struct pci_dev *pci_dev = NULL;

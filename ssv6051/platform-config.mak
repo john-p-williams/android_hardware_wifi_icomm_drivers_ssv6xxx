@@ -22,7 +22,7 @@ ccflags-y += -DCONFIG_SSV_CABRIO_E
 
 ccflags-y += -DCONFIG_SSV6200_CLI_ENABLE
 
-#ccflags-y += -DCONFIG_SSV_BUILD_AS_ONE_KO
+ccflags-y += -DCONFIG_SSV_BUILD_AS_ONE_KO
 
 
 #PADPD

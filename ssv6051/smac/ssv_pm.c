@@ -23,13 +23,14 @@
 #endif
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
-#elif LINUX_VERSION_CODE > KERNEL_VERSION(3, 4, 0)
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(3, 4, 0) && defined(FB_EARLY_EVENT_BLANK)
+#define FB_EARLYSUSPEND
 #include <linux/notifier.h>
 #include <linux/fb.h>
 #endif
 struct ssv_softc *ssv_notify_sc = NULL;
 EXPORT_SYMBOL(ssv_notify_sc);
-#if defined(CONFIG_HAS_EARLYSUSPEND) || (LINUX_VERSION_CODE > KERNEL_VERSION(3, 4, 0))
+#if defined(CONFIG_HAS_EARLYSUSPEND) || defined(FB_EARLYSUSPEND)
 #ifdef CONFIG_HAS_EARLYSUSPEND
 void ssv6xxx_early_suspend(struct early_suspend *h)
 #else
@@ -164,10 +165,8 @@ void ssv_wakelock_init(struct ssv_softc *sc)
 #ifdef CONFIG_HAS_WAKELOCK
     wake_lock_init(&sc->ssv_wake_lock_, WAKE_LOCK_SUSPEND, "ssv6051");
 #endif
-#ifndef CONFIG_HAS_EARLYSUSPEND
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 4, 0)
+#ifdef FB_EARLYSUSPEND
  fb_register_client(&ssv_wlan_fb_notifier);
-#endif
 #endif
 }
 void ssv_wakelock_destroy(struct ssv_softc *sc)
@@ -175,10 +174,8 @@ void ssv_wakelock_destroy(struct ssv_softc *sc)
 #ifdef CONFIG_HAS_WAKELOCK
     wake_lock_destroy(&sc->ssv_wake_lock_);
 #endif
-#ifndef CONFIG_HAS_EARLYSUSPEND
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 4, 0)
+#ifdef FB_EARLYSUSPEND
  fb_unregister_client(&ssv_wlan_fb_notifier);
-#endif
 #endif
 }
 void ssv_wake_lock(struct ssv_softc *sc)

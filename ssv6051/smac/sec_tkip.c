@@ -362,7 +362,7 @@ static int lib80211_tkip_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 {
  struct lib80211_tkip_data *tkey = priv;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,6,0)
- SKCIPHER_REQUEST_ON_STACK(req, tkey->tx_tfm_arc4);
+ SYNC_SKCIPHER_REQUEST_ON_STACK(req, tkey->tx_tfm_arc4);
  int err;
 #else
  struct blkcipher_desc desc = { .tfm = tkey->tx_tfm_arc4 };
@@ -419,7 +419,7 @@ static int lib80211_tkip_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 {
  struct lib80211_tkip_data *tkey = priv;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,6,0)
- SKCIPHER_REQUEST_ON_STACK(req, tkey->rx_tfm_arc4);
+ SYNC_SKCIPHER_REQUEST_ON_STACK(req, tkey->rx_tfm_arc4);
  int err;
 #else
  struct blkcipher_desc desc = { .tfm = tkey->rx_tfm_arc4 };

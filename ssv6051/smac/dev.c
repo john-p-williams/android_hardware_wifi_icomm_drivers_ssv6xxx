@@ -22,6 +22,7 @@
 #include <linux/kthread.h>
 #include <linux/ktime.h>
 #include <net/mac80211.h>
+#include <uapi/linux/sched/types.h>
 #include <ssv6200.h>
 #include <hci/hctrl.h>
 #include "linux_80211.h"
@@ -2813,7 +2814,9 @@ int ssv6xxx_encrypt_task (void *data)
     {
         struct sk_buff *skb = NULL;
         struct ieee80211_hdr *hdr = NULL;
+#ifdef UNDEFINED
         unsigned long CPUMask = 0;
+#endif
         int enc_ret = 0;
         volatile bool wakeup_tx;
         if(skb_queue_len_safe(&sc->preprocess_q) == 0 || (ta->cpu_offline != 0) )
@@ -2828,7 +2831,9 @@ int ssv6xxx_encrypt_task (void *data)
                                msecs_to_jiffies(60000));
             //set_current_state(TASK_RUNNING);
             ta->running = 1;
+#ifdef UNDEFINED
             CPUMask = *(cpumask_bits(&current->cpus_allowed));
+#endif
         }
         if (kthread_should_stop())
         {
