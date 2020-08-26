@@ -1,8 +1,8 @@
 PLATFORMS =
 
 KBUILD_TOP := $(PWD)
-include $(KBUILD_TOP)/ssv6051.cfg
-include $(KBUILD_TOP)/platform-config.mak
+include $(KBUILD_TOP)/platforms/$(PLATFORMS).cfg
+include $(KBUILD_TOP)/platforms/platform-config.mak
 
 PWD := $(shell pwd)
 
@@ -57,7 +57,7 @@ KERN_SRCS_S += crypto/sha1-armv4-large.S
 endif
 
 
-KERN_SRCS += ssv6051-generic-wlan.c
+KERN_SRCS += platforms/$(PLATFORMS)-generic-wlan.c
 
 $(KMODULE_NAME)-y += $(KERN_SRCS_S:.S=.o)
 $(KMODULE_NAME)-y += $(KERN_SRCS:.c=.o)
@@ -67,7 +67,7 @@ obj-$(CONFIG_SSV6200_CORE) += $(KMODULE_NAME).o
 all:module strip
 
 module:
-	$(MAKE)  -C $(SSV_KERNEL_PATH) ARCH=$(SSV_ARCH) CROSS_COMPILE=$(SSV_CROSS) \
+	make  -C $(SSV_KERNEL_PATH) ARCH=$(SSV_ARCH) CROSS_COMPILE=$(SSV_CROSS) \
 	EXTRA_CFLAGS="$(EXTRA_CFLAGS)" M=$(PWD) modules
 
 install:
@@ -80,7 +80,7 @@ strip:
 	#cp eagle.ko $(KO_NAME).ko
 	#cp $(KO_NAME).ko $(DEFAULT_MODULES_DIR)
 	#cp ssv6200.ko $(DEFAULT_MODULES_DIR)
-	#cp platforms/$(PLATFORMS)-wifi.cfg image/$(KMODULE_NAME)-wifi.cfg
+	cp platforms/$(PLATFORMS)-wifi.cfg image/$(KMODULE_NAME)-wifi.cfg
 	cp $(KMODULE_NAME).ko image/$(KMODULE_NAME).ko
 	cp platforms/cli image
 ifneq ($(SSV_STRIP),)
@@ -90,6 +90,6 @@ ifneq ($(SSV_STRIP),)
 endif
 
 clean:
-	$(MAKE) -C $(SSV_KERNEL_PATH) ARCH=$(SSV_ARCH) CROSS_COMPILE=$(SSV_CROSS) \
+	make -C $(SSV_KERNEL_PATH) ARCH=$(SSV_ARCH) CROSS_COMPILE=$(SSV_CROSS) \
 	M=$(PWD) clean
 

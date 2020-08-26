@@ -1145,7 +1145,9 @@ static void __exit ssv6xxx_hci_exit(void)
 #ifdef CONFIG_SSV6200_CLI_ENABLE
     ssv_dbg_ctrl_hci = NULL;
 #endif
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0))
     sdio_clk_always_on(0);
+#endif
 }
 #if (defined(CONFIG_SSV_SUPPORT_ANDROID)||defined(CONFIG_SSV_BUILD_AS_ONE_KO))
 EXPORT_SYMBOL(ssv6xxx_hci_init);

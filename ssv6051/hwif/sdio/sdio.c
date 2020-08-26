@@ -1572,9 +1572,11 @@ static void ssv6xxx_sdio_shutdown(struct device *dev)
 				printk("%s ,system shutdown .. \n", __func__);
 				ssv6xxx_deinit_prepare();
 				ssv6xxx_sdio_remove(func);
+#ifdef AML_WIFI_MAC
 				mdelay(100);
 				extern_wifi_set_enable(0);
 				mdelay(100);
+#endif
 				break;
 		default:
 			printk("%s,unknown event code ..", __func__);
