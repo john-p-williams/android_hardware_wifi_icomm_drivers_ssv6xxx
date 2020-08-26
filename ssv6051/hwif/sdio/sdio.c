@@ -744,6 +744,7 @@ static int __must_check ssv6xxx_sdio_read(struct device *child,
     int ret = (-1), readsize = 0;
     struct ssv6xxx_sdio_glue *glue = dev_get_drvdata(child->parent);
     struct sdio_func *func ;
+    unsigned int n;
     if ( (wlan_data.is_enabled == false)
         || (glue == NULL)
         || (glue->dev_ready == false))
@@ -770,6 +771,22 @@ static int __must_check ssv6xxx_sdio_read(struct device *child,
                 dev_err(child->parent, "sdio read failed size ret[%d]\n",ret);
         }
         sdio_release_host(func);
+
+	if (ret == 0)
+        {
+            n = ((unsigned char *)buf)[1];
+            n = (n << 8) | ((unsigned char *)buf)[0];
+            if (n > readsize)
+            {
+                printk(KERN_DEBUG "Packet length %x but only read %x\n", n, readsize);
+                return -EINVAL;
+            }
+            if (*size != n)
+            {
+                printk(KERN_DEBUG "Replacing packet length %lx by %x\n", *size, n);
+                *size = n;
+            }
+        }
     }
 #if 0
     if(*size > 1500)
