@@ -21,7 +21,9 @@
 #include <linux/jiffies.h>
 #include <ssv6200.h>
 #include "hctrl.h"
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0))
 extern void sdio_clk_always_on(int on);
+#endif
 MODULE_AUTHOR("iComm Semiconductor Co., Ltd");
 MODULE_DESCRIPTION("HCI driver for SSV6xxx 802.11n wireless LAN cards.");
 MODULE_SUPPORTED_DEVICE("SSV6xxx WLAN cards");
@@ -1112,7 +1114,9 @@ static int __init ssv6xxx_hci_init(void)
 #ifdef CONFIG_SSV6200_CLI_ENABLE
     extern struct ssv6xxx_hci_ctrl *ssv_dbg_ctrl_hci;
 #endif
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0))
     sdio_clk_always_on(1);
+#endif
     ctrl_hci = kzalloc(sizeof(*ctrl_hci), GFP_KERNEL);
     if (ctrl_hci == NULL)
         return -ENOMEM;
