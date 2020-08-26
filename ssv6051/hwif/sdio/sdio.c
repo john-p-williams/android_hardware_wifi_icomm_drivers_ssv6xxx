@@ -94,7 +94,7 @@ static const struct sdio_device_id ssv6xxx_sdio_devices[] __devinitconst =
 static const struct sdio_device_id ssv6xxx_sdio_devices[] =
 #endif
 {
-#if 0
+#if 1
     { SDIO_DEVICE(SSV_VENDOR_ID, SSV_CABRIO_DEVID) },
 #endif
     {}
