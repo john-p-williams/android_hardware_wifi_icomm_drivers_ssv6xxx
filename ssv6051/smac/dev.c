@@ -4842,8 +4842,8 @@ extern void ssv6xxx_send_deauth_toself(struct ssv_softc *sc,const u8 *bssid,cons
 static u64 ssv6200_get_systime_us(void)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39))
-	struct timespec ts;
-	get_monotonic_boottime(&ts);
+	struct timespec64 ts;
+	ktime_get_real_ts64(&ts);
 	return ((u64)ts.tv_sec * 1000000) + ts.tv_nsec / 1000;
 #else
 	struct timeval tv;

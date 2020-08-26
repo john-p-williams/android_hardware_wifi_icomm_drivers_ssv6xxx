@@ -215,6 +215,11 @@ static struct file_operations ssv6xxx_dbg_fops = {
     .read = ssv6xxx_dbg_read,
     .write = ssv6xxx_dbg_write,
 };
+static struct proc_ops ssv6xxx_dbg_pops = {
+    .proc_open = ssv6xxx_dbg_open,
+    .proc_read = ssv6xxx_dbg_read,
+    .proc_write = ssv6xxx_dbg_write,
+};
 #if (defined(CONFIG_SSV_SUPPORT_ANDROID)||defined(CONFIG_SSV_BUILD_AS_ONE_KO))
 extern int ssv6xxx_hci_init(void);
 extern void ssv6xxx_hci_exit(void);
@@ -246,7 +251,7 @@ static int __init ssvdevice_init(void)
  procfs = proc_mkdir(DEBUG_DIR_ENTRY, NULL);
  if (!procfs)
   return -ENOMEM;
-    proc_create(DEBUG_CMD_ENTRY, S_IRUGO|S_IWUGO, procfs, &ssv6xxx_dbg_fops);
+    proc_create(DEBUG_CMD_ENTRY, S_IRUGO|S_IWUGO, procfs, &ssv6xxx_dbg_pops);
  sta_cfg_set(stacfgpath);
 #if (defined(CONFIG_SSV_SUPPORT_ANDROID)||defined(CONFIG_SSV_BUILD_AS_ONE_KO))
     {

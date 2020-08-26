@@ -468,7 +468,7 @@ void ssv6200_watchdog_timeout(struct timer_list *arg)
 static void ssv6xxx_preload_sw_cipher(void)
 {
 #ifdef USE_LOCAL_CRYPTO
-    struct crypto_blkcipher *tmpblkcipher;
+    struct crypto_cipher *tmpblkcipher;
     struct crypto_cipher *tmpcipher;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,6,0)
     struct crypto_ahash *tmphash;
@@ -476,11 +476,11 @@ static void ssv6xxx_preload_sw_cipher(void)
     struct crypto_hash *tmphash;
 #endif
     printk("Pre-load cipher\n");
-    tmpblkcipher = crypto_alloc_blkcipher("ecb(arc4)", 0, CRYPTO_ALG_ASYNC);
+    tmpblkcipher = crypto_alloc_cipher("ecb(arc4)", 0, CRYPTO_ALG_ASYNC);
  if (IS_ERR(tmpblkcipher)) {
     printk(" ARC4 cipher allocate fail \n");
  } else {
-    crypto_free_blkcipher(tmpblkcipher);
+    crypto_free_cipher(tmpblkcipher);
     }
  tmpcipher = crypto_alloc_cipher("aes", 0, CRYPTO_ALG_ASYNC);
  if (IS_ERR(tmpcipher)) {
