@@ -1093,7 +1093,7 @@ int ssv6xxx_hci_register(struct ssv6xxx_hci_info *shi)
     HCI_IRQ_REQUEST(ctrl_hci, ssv6xxx_hci_isr);
     #ifdef CONFIG_SSV6XXX_DEBUGFS
     ctrl_hci->debugfs_dir = NULL;
-    ctrl_hci->isr_mib_enable = false;
+    ctrl_hci->isr_mib_enable = true;
     ctrl_hci->isr_mib_reset = 0;
     ctrl_hci->isr_total_time = 0;
     ctrl_hci->isr_rx_io_time = 0;
