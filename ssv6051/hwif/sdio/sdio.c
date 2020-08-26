@@ -753,6 +753,7 @@ static int __must_check ssv6xxx_sdio_read(struct device *child,
         func = dev_to_sdio_func(glue->dev);
         sdio_claim_host(func);
         *size = (uint)sdio_readb(func, REG_CARD_PKT_LEN_0, &ret);
+        usleep_range(1000,2000);
         if (ret)
             dev_err(child->parent, "sdio read hight len failed ret[%d]\n",ret);
         if (ret == 0)

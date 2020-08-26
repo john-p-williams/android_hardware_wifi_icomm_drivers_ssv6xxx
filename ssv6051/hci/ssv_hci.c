@@ -361,9 +361,9 @@ static int ssv6xxx_hci_tx_handler(void *dev, int max_count)
         }
         //BUG_ON(SSV6200_PAGE_TX_THRESHOLD < txq_info2.tx_use_page);
         //BUG_ON(SSV6200_ID_TX_THRESHOLD < txq_info2.tx_use_id);
-        if(SSV6200_PAGE_TX_THRESHOLD < txq_info.tx_use_page)
+        if(SSV6200_PAGE_TX_THRESHOLD < txq_info2.tx_use_page)
             return 0;
-        if(SSV6200_ID_TX_THRESHOLD < txq_info.tx_use_page)
+        if(SSV6200_ID_TX_THRESHOLD < txq_info2.tx_use_page)
             return 0;     
   hw_resource.free_tx_page =
       SSV6200_PAGE_TX_THRESHOLD - txq_info2.tx_use_page;
