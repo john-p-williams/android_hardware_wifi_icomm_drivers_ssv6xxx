@@ -1,0 +1,25 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "rockchip,rk3328-evb\0rockchip,rk3328";
+
+	fragment@0 {
+		target = <&gmac2io>;
+		__overlay__ {
+			status = "disabled";
+		};
+	};
+
+	fragment@1 {
+		target = <&gmac2phy>;
+		__overlay__ {
+			phy-supply = <&vcc_io>;
+			clock_in_out = "output";
+			assigned-clock-rate = <50000000>;
+			assigned-clocks = <&cru 101>;
+			assigned-clock-parents = <&cru 84>;
+			status = "okay";
+		};
+	};
+};

@@ -1,0 +1,12 @@
+Device-tree overlay files to modify the rock64 device tree for my scishion v88piano:
+
+ethernet1.dts	disables the non-existent gigabit ethernet and enables the 100M ethernet 
+sdio.dts	support for the ssv6051p wifi
+
+To compile into device_tree overlays:
+  for f in ethernet1 sdio; do
+    cpp -I /lib/modules/$(uname -r)/build/include -P -traditional-cpp $f.dts | dtc -I dts -O dtb -o $f.dtbo
+  done
+
+Then copy the .dtbo files into /boot/overlay-user and add this line to armbianEnv.txt:
+  user_overlays=ethernet1 sdio

@@ -1,0 +1,72 @@
+/dts-v1/;
+/plugin/;
+
+#include "dt-bindings/clock/rk3328-cru.h"
+#include "dt-bindings/gpio/gpio.h"
+#include "dt-bindings/interrupt-controller/arm-gic.h"
+#include "dt-bindings/interrupt-controller/irq.h"
+#include "dt-bindings/pinctrl/rockchip.h"
+
+/ {
+	compatible = "rockchip,rk3328-evb\0rockchip,rk3328";
+
+	fragment@0 {
+		target = <&spi0>;
+		__overlay__ {
+			status = "disabled";
+		};
+	};
+
+	fragment@1 {
+		target-path = "/";
+		__overlay__ {
+			#address-cells = <2>;
+			#size-cells = <2>;
+			interrupt-parent = <&gic>;
+
+			wireless-wlan {
+				compatible = "wlan-platdata";
+				wifi_chip_type = "ssv6051";
+				/* following does not work as pwrseq grabs the gpio */
+				// WIFI,poweren_gpio = <&gpio3 RK_PB0 GPIO_ACTIVE_HIGH>;
+				status = "okay";
+			};
+
+			sdio_pwrseq: sdio-pwrseq {
+				compatible = "mmc-pwrseq-simple";
+				pinctrl-names = "default";
+				pinctrl-0 = <&wifi_enable_h>;
+				reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
+				post-power-on-delay-ms = <150>;
+				wifi_enable_h: wifi-enable-h {
+					rockchip,pins = <RK_GPIO3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
+				};
+
+			};
+
+			sdmmc_ext: dwmmc@ff5f0000 {
+				compatible = "rockchip,rk3328-dw-mshc", "rockchip,rk3288-dw-mshc";
+				reg = <0x0 0xff5f0000 0x0 0x4000>;
+				bus-width = <4>;
+				cap-sd-highspeed;
+				cap-sdio-irq;
+				clocks = <&cru HCLK_SDMMC_EXT>, <&cru SCLK_SDMMC_EXT>, <&cru SCLK_SDMMC_EXT_DRV>, <&cru SCLK_SDMMC_EXT_SAMPLE>;
+				clock-names = "biu", "ciu", "ciu-drv", "ciu-sample";
+				disable-wp;
+				fifo-depth = <0x100>;
+				interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+				keep-power-in-suspend;
+				max-frequency = <25000000>;
+				mmc-pwrseq = <&sdio_pwrseq>;
+				non-removable;
+				num-slots = <1>;
+				pinctrl-names = "default", "idle";
+				pinctrl-0 = <&sdmmc0ext_clk &sdmmc0ext_cmd &sdmmc0ext_dectn &sdmmc0ext_bus4>;
+				pinctrl-1 = <&sdmmc0ext_gpio>;
+				rockchip,grf = <&grf>;
+				supports-sdio;
+				status = "okay";
+			};
+		};
+	};
+};
