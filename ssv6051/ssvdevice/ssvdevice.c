@@ -106,7 +106,7 @@ size_t read_line(struct file *fp, char *buf, size_t size)
   if (fp->f_op && fp->f_op->read)
    num_read = fp->f_op->read(fp, &ch, 1, &fp->f_pos);
 #else
-  num_read = vfs_read(fp, &ch, 1, &fp->f_pos);
+  num_read = kernel_read(fp, &ch, 1, &fp->f_pos);
 #endif
   if (num_read < 0) {
    if (num_read == EINTR)
