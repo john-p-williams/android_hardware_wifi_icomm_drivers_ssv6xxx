@@ -1,96 +1,33 @@
-PLATFORMS = rk3328
+LINUX ?= /lib/modules/$(shell uname -r)/build
 
-KBUILD_TOP := $(PWD)
-include $(KBUILD_TOP)/ssv6051.cfg
-include $(KBUILD_TOP)/platform-config.mak
+EXTRA_CFLAGS := -I$(PWD) -I$(PWD)/include
 
-PWD := $(shell pwd)
+include $(PWD)/ssv6051.cfg
 
-ifeq ($(KERNELRELEASE),)
-# current directory is driver
-CFGDIR = $(PWD)/../../../../config
+obj-m := ssv6051.o
 
--include $(CFGDIR)/build_config.cfg
--include $(CFGDIR)/rules.make
+ssv6051-y := \
+	hci/ssv_hci.o \
+	hwif/sdio/sdio.o \
+	smac/ampdu.o \
+	smac/ap.o \
+	smac/dev.o \
+	smac/efuse.o \
+	smac/init.o \
+	smac/sar.o \
+	smac/ssv6xxx_debugfs.o \
+	smac/ssv_ht_rc.o \
+	smac/ssv_pm.o \
+	smac/ssv_rc.o \
+	ssv6051-generic-wlan.o \
+	ssvdevice/ssv_cmd.o \
+	ssvdevice/ssvdevice.o
 
-endif
-
-KMODULE_NAME=ssv6051
-EXTRA_CFLAGS := -I$(KBUILD_TOP) -I$(KBUILD_TOP)/include
-
-DEF_PARSER_H = $(KBUILD_TOP)/include/ssv_conf_parser.h
-$(shell env ccflags="$(ccflags-y)" $(KBUILD_TOP)/parser-conf.sh $(DEF_PARSER_H))
-
-KERN_SRCS := ssvdevice/ssvdevice.c
-KERN_SRCS += ssvdevice/ssv_cmd.c
-
-KERN_SRCS += hci/ssv_hci.c
-
-KERN_SRCS += smac/init.c
-KERN_SRCS += smac/dev.c
-KERN_SRCS += smac/ssv_rc.c
-KERN_SRCS += smac/ssv_ht_rc.c
-KERN_SRCS += smac/ap.c
-KERN_SRCS += smac/ampdu.c
-KERN_SRCS += smac/ssv6xxx_debugfs.c
-#KERN_SRCS += smac/sec_ccmp.c
-#KERN_SRCS += smac/sec_tkip.c
-#KERN_SRCS += smac/sec_wep.c
-#KERN_SRCS += smac/wapi_sms4.c
-#KERN_SRCS += smac/sec_wpi.c
-KERN_SRCS += smac/efuse.c
-KERN_SRCS += smac/ssv_pm.c
-KERN_SRCS += smac/sar.c
-
-ifeq ($(findstring -DCONFIG_SSV_SMARTLINK, $(ccflags-y)), -DCONFIG_SSV_SMARTLINK)
-KERN_SRCS += smac/smartlink.c
-endif
-
-KERN_SRCS += hwif/sdio/sdio.c
-#KERNEL_MODULES += crypto
-
-ifeq ($(findstring -DCONFIG_SSV_SUPPORT_AES_ASM, $(ccflags-y)), -DCONFIG_SSV_SUPPORT_AES_ASM)
-KERN_SRCS += crypto/aes_glue.c
-KERN_SRCS += crypto/sha1_glue.c
-KERN_SRCS_S := crypto/aes-armv4.S
-KERN_SRCS_S += crypto/sha1-armv4-large.S
-endif
-
-
-KERN_SRCS += ssv6051-generic-wlan.c
-
-$(KMODULE_NAME)-y += $(KERN_SRCS_S:.S=.o)
-$(KMODULE_NAME)-y += $(KERN_SRCS:.c=.o)
-
-obj-$(CONFIG_SSV6200_CORE) += $(KMODULE_NAME).o
-
-all:module strip
-
-module:
-	$(MAKE)  -C $(SSV_KERNEL_PATH) ARCH=$(SSV_ARCH) CROSS_COMPILE=$(SSV_CROSS) \
-	CONFIG_STACKPROTECTOR=n CONFIG_STACKPROTECTOR_STRONG=n \
-	EXTRA_CFLAGS="$(EXTRA_CFLAGS)" M=$(PWD) modules
+all:
+	make -C $(LINUX) CONFIG_STACKPROTECTOR=n CONFIG_STACKPROTECTOR_STRONG=n M=$(PWD) modules
 
 install:
-	install -p -m 644 $(KMODULE_NAME).ko $(KMODDESTDIR)
-
-uninstall:
-	rm -f $(KMODDESTDIR)/$(KMODULE_NAME).ko
-    
-strip:
-	#cp eagle.ko $(KO_NAME).ko
-	#cp $(KO_NAME).ko $(DEFAULT_MODULES_DIR)
-	#cp ssv6200.ko $(DEFAULT_MODULES_DIR)
-	#cp platforms/$(PLATFORMS)-wifi.cfg image/$(KMODULE_NAME)-wifi.cfg
-	cp $(KMODULE_NAME).ko image/$(KMODULE_NAME).ko
-	cp platforms/cli image
-ifneq ($(SSV_STRIP),)
-	cp $(KMODULE_NAME).ko image/$(KMODULE_NAME)_ori.ko
-	$(SSV_STRIP) --strip-unneeded image/$(KMODULE_NAME).ko
-	#$(SSV_STRIP) --strip-debug image/$(KMODULE_NAME).ko
-endif
+	make -C $(LINUX) M=$(PWD) modules_install
 
 clean:
-	$(MAKE) -C $(SSV_KERNEL_PATH) ARCH=$(SSV_ARCH) CROSS_COMPILE=$(SSV_CROSS) \
-	M=$(PWD) clean
-
+	make -C $(LINUX) M=$(PWD) clean

@@ -1,6 +1,6 @@
-I bought a TV set-top box based on the Rockchip RK3128 SOC,
+I bought a TV set-top box based on the Rockchip RK3328 SOC,
 which turned out to use an SSV6051P wifi chip.
-I am running Armbian on this box (with the Armbian 5.7.15 kernel
+I am running Armbian on this box (with the Armbian 5.9.14 kernel
 based on mainline), and of course there is no driver for the SSV6051
 in mainline, so this is a port to my hardware of a driver
 that I found in the Khadas VIM github repository, with
@@ -24,28 +24,26 @@ device_tree	contains the hardware-specific changes I made to the rock64 device t
 Code changes
 ============
 
-1. Various places where kernel functions have changed their name, parameters etc.
+1. I have completely replaced the makefiles, which were a confusing mess;
+I have also removed a lot of files which were not needed to compile the module.
+
+2. Various places where kernel functions have changed their name, parameters etc.
 In a few cases I gave up and wrapped the non-compiling
 code in '#ifdef UNDEFINED ... #endif'
 
-2. An obvious typo in ssv_hci.c where one variable was initialized and then another
+3. An obvious typo in ssv_hci.c where one variable was initialized and then another
 similarly-named variable tested: I'm surprised the compiler didn't catch this.
-
-3. The ssv6xxx_sdio_read() function in hwif/sdio/sdio.c reads the packet length
-from some sdio registers, then reads a packet of that length from the sdio data.
-Debugging showed that the packet was sometimes corrupted because the length
-is incorrect; my guess is that we are getting the length of one packet and then
-reading an entirely different packet.
-It looks like the correct packet length is contained in the first two bytes of the
-packet data, so I've added some code to use that value for the length instead.
 
 The code is a horrible mess; I haven't tried to clean it up or even to re-format it.
 
 Compilation
 ===========
 
-To build in Armbian, using the native compiler, go to the ssv6051 directory and type:
-  make module SSV_ARCH=arm64 SSV_KERNEL_PATH=/usr/src/linux-headers-5.7.15-rockchip64
+To build in Armbian, using the native compiler, you will need the linux kernel
+heaxers package installed; then go to the ssv6051 directory and type 'make'.
+
+To build the firmware, install 'gcc-arm-none-eabi' and 'libnewlib-arm-none-eabi'
+then go to the ssv6051/smac/firmware directory and type 'make'.
 
 Installation
 ============
@@ -53,7 +51,8 @@ Installation
 Copy the module file ssv6051.ko to /lib/modules/5.7.15-rockchip64/extra/ssv6051.ko
 
 Create a directory /lib/firmware/ssv6051 and copy the two firmware files
-ssv6051-wifi.cfg and ssv6051-sw.bin into it from the 'image' directory
+ssv6051-wifi.cfg and ssv6051-sw.bin into it from the 'image' and 'firmware'
+directories.
 
 You will also need support added to the device tree; see the contents of the
 device-tree directory which has its own documentation
@@ -62,11 +61,4 @@ Testing
 =======
 
 I tested the code by connecting to various access points
-and then running 'ping -s 4000' and 'ping -f'
-
-With an unencrypted access point I haven't seen any errors yet.
-
-With an encrypted access point there is still difficulty
-connecting, and a flood ping ran for some time and then
-gave up. Some packets are being lost because of the packet
-length problem and I am working on improving this code.
+and then running 'ping -f -s 4000' and 'netperf'.

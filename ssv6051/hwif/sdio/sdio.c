@@ -754,7 +754,6 @@ static int __must_check ssv6xxx_sdio_read(struct device *child,
         func = dev_to_sdio_func(glue->dev);
         sdio_claim_host(func);
         *size = (uint)sdio_readb(func, REG_CARD_PKT_LEN_0, &ret);
-        usleep_range(1000,2000);
         if (ret)
             dev_err(child->parent, "sdio read hight len failed ret[%d]\n",ret);
         if (ret == 0)
@@ -771,22 +770,6 @@ static int __must_check ssv6xxx_sdio_read(struct device *child,
                 dev_err(child->parent, "sdio read failed size ret[%d]\n",ret);
         }
         sdio_release_host(func);
-
-	if (ret == 0)
-        {
-            n = ((unsigned char *)buf)[1];
-            n = (n << 8) | ((unsigned char *)buf)[0];
-            if (n > readsize)
-            {
-                printk(KERN_DEBUG "Packet length %x but only read %x\n", n, readsize);
-                return -EINVAL;
-            }
-            if (*size != n)
-            {
-                printk(KERN_DEBUG "Replacing packet length %lx by %x\n", *size, n);
-                *size = n;
-            }
-        }
     }
 #if 0
     if(*size > 1500)

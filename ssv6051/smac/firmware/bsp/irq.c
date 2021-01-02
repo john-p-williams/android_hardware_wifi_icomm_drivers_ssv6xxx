@@ -112,7 +112,7 @@ void do_exception( void )
 portTickType xCurrentTick;
 static portTickType xLastTickCnt = 0;
 
-inline void reset_phy()
+static inline void reset_phy()
 {
     //volatile u32 *reset_phy = (u32 *)(ADR_PHY_EN_1);
     //*reset_phy = 0x0000017E;

@@ -39,9 +39,8 @@
 				reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
 				post-power-on-delay-ms = <150>;
 				wifi_enable_h: wifi-enable-h {
-					rockchip,pins = <RK_GPIO3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
+					rockchip,pins = <3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
 				};
-
 			};
 
 			sdmmc_ext: dwmmc@ff5f0000 {
@@ -56,13 +55,13 @@
 				fifo-depth = <0x100>;
 				interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
 				keep-power-in-suspend;
-				max-frequency = <25000000>;
+				max-frequency = <150000000>;
 				mmc-pwrseq = <&sdio_pwrseq>;
 				non-removable;
 				num-slots = <1>;
 				pinctrl-names = "default", "idle";
 				pinctrl-0 = <&sdmmc0ext_clk &sdmmc0ext_cmd &sdmmc0ext_dectn &sdmmc0ext_bus4>;
-				pinctrl-1 = <&sdmmc0ext_gpio>;
+				pinctrl-1 = <&sdmmc0ext_pins>;
 				rockchip,grf = <&grf>;
 				supports-sdio;
 				status = "okay";

@@ -2858,6 +2858,7 @@ int ssv6xxx_encrypt_task (void *data)
                 {
                     skb_info->crypt_st = PKT_CRYPT_ST_ENC_DONE;
                     cont_crypto_failure = 0;
+#ifdef UNDEFINED
                     if (cur_prio != ori_prio)
                     {
                         struct sched_param sp = { .sched_priority = ori_prio };
@@ -2868,6 +2869,7 @@ int ssv6xxx_encrypt_task (void *data)
                         cur_prio = ori_prio;
                         spin_unlock_irqrestore(&sc->crypt_st_lock, flags);
                     }
+#endif
                 }
                 else
                 {
@@ -2906,6 +2908,7 @@ int ssv6xxx_encrypt_task (void *data)
                 skb = NULL;
                 if (cont_crypto_failure == max_cont_crypto_failure)
                 {
+#ifdef UNDEFINED
                     spin_lock_irqsave(&sc->crypt_st_lock, flags);
                     if (cur_prio != min_prio)
                     {
@@ -2916,6 +2919,7 @@ int ssv6xxx_encrypt_task (void *data)
                                 this_task->pid, sp.sched_priority);
                     }
                     spin_unlock_irqrestore(&sc->crypt_st_lock, flags);
+#endif
                 }
                 else
                 {
